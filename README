@@ -1,0 +1,57 @@
+Diaconu Tudor-Gabriel
+
+Tema 1 PCom 2022
+Router-ul
+
+O sa explic in acest README pasii pe care i-am urmat pentru a rezolva tema, in
+ordine cronologica.
+
+0. In primul rand am verificat daca destinatia din ethernet este corecta, 
+adica daca dhost-ul este broadcast sau adresa MAC a interfetei pachetului.
+
+1. In primul rand am implementat cazul in care primim un packet de ARP request,
+pe care trebuie sa il transformam in ARP reply cu informatiile dorite. Acest
+lucru presupune extragerea header-ului ARP si modificarea field-urilor sale.
+Asadar, op-ul va deveni 2(cel pentru reply). Intrucat router-ul trimite reply-ul
+si host-ul care a trimis request-ul va primi reply-ul, adresele de sursa ii vor
+primi valorile adreselor router-ului, iar cele de target vor primi valorile
+adreselor host-ului ce a trimis request-ul.
+
+2. Apoi, m-am apucat sa implementez forwardarea IP. Pentru aceasta, mi-am extras
+header-ul de IP, am facut verificarile legate de suma de control si ttl, iar apoi am
+implementat o functie asemanatoare cu cea din laboratorul 4 pentru a gasi cea
+mai buna ruta din tabela de rutare corespunzatoare adresei IP destinatie.
+Apoi, am recalculat suma de control in mod incremental si am actualizat ttl-ul.
+La forwardare, apar 2 cazuri, cel in care gasim in tabela ARP next-hopul rutei
+din tabela de rutare, asadar stim MAC-ul next-hop-ului pe care il putem introduce
+in destinatia header-ului ethernet si apoi putem trimite pachetul. Cazul mai
+complex este cel in care nu gasim next-hopul rutei in tabela ARP, asadar trebuie
+sa trimitem un ARP request pentru a afla MAC-ul next-hopului. Pentru aceasta,
+trimitem pachetul curent pe coada de pachete pentru a astepta reply-ul, iar apoi
+ne construim arp request-ul.
+
+3. Apoi, am implementat acceptarea unui ARP reply, caz in care adaugam in tabela
+arp perechea IP-MAC primita pentru a nu fi nevoie sa trimitem de fiecare data 
+arp request. Apoi, ne plimbam prin coada si cautam pachetul al carui best router
+are next-hop-ul egal cu ip-ul entitatii ce a trimis reply-ul. In momentul in care
+gasim acest pachet, ii vom actualiza destinatia din header-ul ethernet cu mac-ul
+din tabela arp si vom trimite pachetul. In cazul in care pachetul curent nu are
+ce ne dorim noi, il reintroducem in coada pentru a fi verificat mai tarziu cand
+tabela arp este mai populata.
+
+4. Intr-un final am implementat icmp-ul care a presupus implementarea unei
+functii ce construia header-ul icmp intr-un pachet, iar apoi, in functie de
+situatie, trimitea eroarea icmp cu type-ul corespunzator.
+
+5. De asemenea, am implementat si bonusul cu ajutorul unei formule gasite
+printr-un search pe google al titlului articolului ce ni l-ati trimis drept
+documentatie pentru acest exercitiu in footer-ul enuntului temei.
+
+Exercitiile rezolvate:
+ARP
+IP
+ICMP
+Suma de control incrementala
+
+Exercitiile nerezolvate:
+LPM mai eficient decat liniar
